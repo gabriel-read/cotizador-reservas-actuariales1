@@ -605,15 +605,23 @@ try:
         "Δ(PNA−Retro)": "${:.2e}",
     }
 
+# --- BLOQUE CORREGIDO ---
+    # Seguro matemático para evitar el Segmentation Fault en el gradiente
+    vmax_pna = float(df["V_PNA"].max())
+    if pd.isna(vmax_pna) or vmax_pna <= 0:
+        vmax_pna = 1.0  # Valor refugio si la columna está en 0
+        
     styled = (
         df.style
         .format(fmt)
-        .background_gradient(subset=["V_PNA"], cmap="Blues", vmin=0, vmax=float(df["V_PNA"].max()))
-        .applymap(
-            lambda v: "color: #888888;" if abs(v) < 1e-8 else "",
+        .background_gradient(subset=["V_PNA"], cmap="Blues", vmin=0, vmax=vmax_pna)
+        .map(
+            lambda v: "color: #888888;" if pd.notna(v) and abs(v) < 1e-8 else "",
             subset=["Δ(PNA−Retro)"],
         )
     )
+
+    st.dataframe(styled, width="stretch", height=430)
 
     st.dataframe(styled, use_container_width=True, height=430)
 
