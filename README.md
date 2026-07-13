@@ -24,7 +24,8 @@ El motor lógico opera bajo las ecuaciones actuariales clásicas de conmutativos
 ### Método Prospectivo (Ejemplo: Vida Entera con Pagos Limitados a $m$ años)
 La reserva en el año $t$ se define como el valor presente de los beneficios futuros menos el valor presente de las primas futuras:
 
-$$ _tV_x = \frac{M_{x+t}}{D_{x+t}} - P \cdot \frac{N_{x+t} - N_{x+m}}{D_{x+t}} $$
+```math
+{}_{t}V_x = \frac{M_{x+t}}{D_{x+t}} - P \cdot \frac{N_{x+t} - N_{x+m}}{D_{x+t}}
 
 *(Si $t \ge m$, el componente de primas futuras es nulo).*
 
