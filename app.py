@@ -65,6 +65,7 @@ def cargar_base(path: str) -> dict[str, pd.DataFrame]:
     return result
 
 
+@st.cache_data
 def construir_conmutados(df_base: pd.DataFrame, i: float) -> pd.DataFrame:
     """
     D_x = v^x · l_x          N_x = Σ_{k≥x} D_k
@@ -303,7 +304,7 @@ with st.sidebar:
     )
 
     st.markdown("---")
-    calcular = st.button("📊 Calcular Reservas", type="primary", use_container_width=True)
+    calcular = st.button("📊 Calcular Reservas", type="primary")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -346,7 +347,7 @@ iguales hasta el vencimiento, confirmando la consistencia del modelo.
     with st.expander("🔎 Vista previa de conmutativos"):
         st.dataframe(
             tabla[["q(x)", "l(x)", "d(x)", "Dx", "Cx", "Nx", "Mx"]].head(25),
-            use_container_width=True,
+            width="stretch",
         )
     st.stop()
 
@@ -615,7 +616,6 @@ try:
 
     # Nota sobre columnas por-unidad
     with st.expander("ℹ️ Acerca de las columnas VP_Ben y VP_Pri"):
-        # Asegúrate de que la r minúscula esté justo antes de las comillas triples
         st.markdown(r"""
 **VP_Ben** y **VP_Pri** son valores *por unidad de capital* (adimensionales).
 Representan las funciones actuariales evaluadas en la edad alcanzada x+t:
@@ -623,8 +623,8 @@ Representan las funciones actuariales evaluadas en la edad alcanzada x+t:
 | Columna | Fórmula | Descripción |
 |:---|:---|:---|
 | `VP_Ben` | Varía según producto | Valor Presente Actuarial de beneficios futuros por unidad |
-| `VP_Pri Anual` | ppa_u · ä_{x+t:m−t\|} | Valor Presente de primas futuras (anual) por unidad |
-| `VP_Pri Fracc` | ppa_ku · ä^{(k)}_{x+t:m−t\|} | Valor Presente de primas futuras (fraccionada) por unidad |
+| `VP_Pri Anual` | ppa_u · ä\_{x+t:m−t\|} | Valor Presente de primas futuras (anual) por unidad |
+| `VP_Pri Fracc` | ppa_ku · ä^{(k)}\_{x+t:m−t\|} | Valor Presente de primas futuras (fraccionada) por unidad |
 
 Las reservas en $ se obtienen multiplicando **(VP_Ben − VP_Pri) × C**.
 """)
@@ -636,32 +636,6 @@ Las reservas en $ se obtienen multiplicando **(VP_Ben − VP_Pri) × C**.
         data=csv_bytes,
         file_name=f"reservas_{producto}_x{x}_n{n}_m{m}_k{k}.csv",
         mime="text/csv",
-        use_container_width=True,
-    )
-
-    # Nota sobre columnas por-unidad
-    with st.expander("ℹ️ Acerca de las columnas VP_Ben y VP_Pri"):
-        st.markdown("""
-**VP_Ben** y **VP_Pri** son valores *por unidad de capital* (adimensionales).
-Representan las funciones actuariales evaluadas en la edad alcanzada x+t:
-
-| Columna | Fórmula | Descripción |
-|:---|:---|:---|
-| `VP_Ben` | Varía según producto | Valor Presente Actuarial de beneficios futuros por unidad |
-| `VP_Pri Anual` | ppa_u · ä\_{x+t:m−t\\|} | Valor Presente de primas futuras (anual) por unidad |
-| `VP_Pri Fracc` | ppa_ku · ä^{(k)}\_{x+t:m−t\\|} | Valor Presente de primas futuras (fraccionada) por unidad |
-
-Las reservas en $ se obtienen multiplicando **(VP_Ben − VP_Pri) × C**.
-""")
-
-    # Botón de descarga CSV
-    csv_bytes = df.to_csv(index=False).encode("utf-8")
-    st.download_button(
-        label=f"⬇️ Descargar CSV  ·  {producto}_x{x}_n{n}_m{m}_k{k}",
-        data=csv_bytes,
-        file_name=f"reservas_{producto}_x{x}_n{n}_m{m}_k{k}.csv",
-        mime="text/csv",
-        use_container_width=True,
     )
 
 except Exception as exc:
@@ -677,5 +651,5 @@ st.markdown("---")
 with st.expander("🔎 Vista previa de la tabla de mortalidad y conmutativos"):
     st.dataframe(
         tabla[["q(x)", "l(x)", "d(x)", "Dx", "Cx", "Nx", "Mx"]].head(30),
-        use_container_width=True,
+        width="stretch",
     )
