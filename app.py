@@ -587,43 +587,57 @@ try:
         delta_color="off" if ok_eq else "inverse",
     )
 
-    # ════════════════════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════════════════
     # 10  CUADRO DE AMORTIZACIÓN ACTUARIAL
     # ════════════════════════════════════════════════════════════════════════════
     st.markdown("---")
     st.subheader("📋 Cuadro de Amortización Actuarial")
 
-    # Columnas por-unidad: 6 decimales; columnas en $: 2 decimales
-    fmt = {
-        "VP_Ben":       "{:.6f}",
-        "VP_Pri Anual": "{:.6f}",
-        "VP_Pri Fracc": "{:.6f}",
-        "V_PU":         "${:,.2f}",
-        "V_PNA":        "${:,.2f}",
-        "V_PNF":        "${:,.2f}",
-        "V_Retro":      "${:,.2f}",
-        "Δ(PNA−Retro)": "${:.2e}",
-    }
-
-# --- BLOQUE CORREGIDO ---
-    # Seguro matemático para evitar el Segmentation Fault en el gradiente
-    vmax_pna = float(df["V_PNA"].max())
-    if pd.isna(vmax_pna) or vmax_pna <= 0:
-        vmax_pna = 1.0  # Valor refugio si la columna está en 0
-        
-    styled = (
-        df.style
-        .format(fmt)
-        .background_gradient(subset=["V_PNA"], cmap="Blues", vmin=0, vmax=vmax_pna)
-        .map(
-            lambda v: "color: #888888;" if pd.notna(v) and abs(v) < 1e-8 else "",
-            subset=["Δ(PNA−Retro)"],
-        )
+    # Usamos configuración nativa de Streamlit (Evita Segmentation Faults de Pandas Style)
+    st.dataframe(
+        df,
+        width="stretch",
+        height=430,
+        hide_index=True,
+        column_config={
+            "t": st.column_config.NumberColumn("t", format="%d"),
+            "x+t": st.column_config.NumberColumn("x+t", format="%d"),
+            "VP_Ben": st.column_config.NumberColumn("VP_Ben", format="%.6f"),
+            "VP_Pri Anual": st.column_config.NumberColumn("VP_Pri Anual", format="%.6f"),
+            "VP_Pri Fracc": st.column_config.NumberColumn("VP_Pri Fracc", format="%.6f"),
+            "V_PU": st.column_config.NumberColumn("V_PU", format="$%.2f"),
+            "V_PNA": st.column_config.NumberColumn("V_PNA", format="$%.2f"),
+            "V_PNF": st.column_config.NumberColumn("V_PNF", format="$%.2f"),
+            "V_Retro": st.column_config.NumberColumn("V_Retro", format="$%.2f"),
+            "Δ(PNA−Retro)": st.column_config.NumberColumn("Δ(PNA−Retro)", format="%.2e"),
+        }
     )
 
-    st.dataframe(styled, width="stretch", height=430)
+    # Nota sobre columnas por-unidad
+    with st.expander("ℹ️ Acerca de las columnas VP_Ben y VP_Pri"):
+        # Asegúrate de que la r minúscula esté justo antes de las comillas triples
+        st.markdown(r"""
+**VP_Ben** y **VP_Pri** son valores *por unidad de capital* (adimensionales).
+Representan las funciones actuariales evaluadas en la edad alcanzada x+t:
 
-    st.dataframe(styled, use_container_width=True, height=430)
+| Columna | Fórmula | Descripción |
+|:---|:---|:---|
+| `VP_Ben` | Varía según producto | Valor Presente Actuarial de beneficios futuros por unidad |
+| `VP_Pri Anual` | ppa_u · ä_{x+t:m−t\|} | Valor Presente de primas futuras (anual) por unidad |
+| `VP_Pri Fracc` | ppa_ku · ä^{(k)}_{x+t:m−t\|} | Valor Presente de primas futuras (fraccionada) por unidad |
+
+Las reservas en $ se obtienen multiplicando **(VP_Ben − VP_Pri) × C**.
+""")
+
+    # Botón de descarga CSV
+    csv_bytes = df.to_csv(index=False).encode("utf-8")
+    st.download_button(
+        label=f"⬇️ Descargar CSV  ·  {producto}_x{x}_n{n}_m{m}_k{k}",
+        data=csv_bytes,
+        file_name=f"reservas_{producto}_x{x}_n{n}_m{m}_k{k}.csv",
+        mime="text/csv",
+        use_container_width=True,
+    )
 
     # Nota sobre columnas por-unidad
     with st.expander("ℹ️ Acerca de las columnas VP_Ben y VP_Pri"):
