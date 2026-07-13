@@ -1,5 +1,7 @@
-streamlit
-pandas
-numpy
-openpyxl
-plotly
+# ── Versiones con wheels binarios oficiales para Python 3.11 ──────────────────
+# Estas versiones NO requieren compilación desde fuente → sin Segmentation Fault
+streamlit==1.32.0
+pandas==2.2.1
+numpy==1.26.4
+openpyxl==3.1.2
+plotly==5.19.0
