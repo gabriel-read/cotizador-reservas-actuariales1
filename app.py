@@ -43,7 +43,7 @@ def _detectar_excel() -> str:
         if p.exists():
             return str(p)
     for ext in ("xlsx", "xlsm", "xls"):
-        hit = list(folder.rglob(f"*mortalidad*.{ext}"))
+        hit = list(folder.rglob(f"*actuarial*.{ext}"))
         if hit:
             return str(hit[0])
     return str(folder / "tabla_mortalidad.xlsx")
