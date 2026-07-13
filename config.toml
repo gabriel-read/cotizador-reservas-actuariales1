@@ -1,0 +1,11 @@
+[server]
+headless = true
+enableCORS = false
+enableXsrfProtection = true
+
+[runner]
+# Prevent Streamlit from catching all exceptions (helps surface real errors)
+fastReruns = false
+
+[browser]
+gatherUsageStats = false
